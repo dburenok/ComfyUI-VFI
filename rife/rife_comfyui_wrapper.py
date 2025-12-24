@@ -83,7 +83,7 @@ class RIFEWrapper:
         for out_idx, (source_idx1, source_idx2, interp_factor) in enumerate(frame_positions):
             if interp_factor == 0.0 or source_idx1 == source_idx2:
                 # Direct copy, no interpolation needed
-                output_frames.append(images[source_idx1])
+                output_frames.append(images[source_idx1].cpu())
             else:
                 # Need interpolation - add placeholder
                 output_frames.append(None)
@@ -128,6 +128,8 @@ class RIFEWrapper:
                     batch_I0[i] = F.pad(I0, padding)[0]
                     batch_I1[i] = F.pad(I1, padding)[0]
                     timesteps.append(interp_factor)
+
+                timesteps = torch.tensor(timesteps, dtype=gpu_dtype, device=self.device)
 
                 # Batch inference
                 interpolated_batch = self.model.inference_batch(batch_I0, batch_I1, timesteps, scale=scale)
